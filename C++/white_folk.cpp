@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <ios>
@@ -30,17 +29,14 @@ int main() {
     
     string ascii;
     for (size_t i{}; i < bytes.size(); ++i) {
-        int real_size = bytes.size() - i;
+        // int real_size = bytes.size() - i;
         int int_c = static_cast<int>(bytes[i]);
 
         if (i % 16 == 0) {
             cout << "\n" << setw(8) << setfill('0') << i;
         }
 
-        if (int_c < 10) {
-            cout << "  0x0" << hex << uppercase << int_c;
-
-        } else if (int_c >= 10 && int_c <= 15) {
+        if (int_c <= 15) {
             cout << "  0x0" << hex << uppercase << int_c;
 
         } else if (int_c > 15) {
@@ -64,7 +60,7 @@ int main() {
             cout << "  " << ascii;
             ascii.clear();
 
-        } else if (real_size < 2) {
+        } else if (bytes.size() - i < 2) {
             cout << string(missing * 6 + 2, ' ');
             cout << ascii;
         }
