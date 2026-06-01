@@ -1,6 +1,8 @@
 #include <cstdint>
-#include <cstdlib>
+#include <cstdio>
 #include <cstring>
+
+using namespace std;
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -54,7 +56,12 @@ b32 plat_mem_release(void* ptr, u64 size);
 
 int main(void) {
     mem_arena* perm_arena = arena_create(GiB(1), MiB(1));
-    
+
+    while (1) {
+        arena_push(perm_arena, MiB(16), false);
+        getc(stdin);
+    } 
+
     arena_destroy(perm_arena);
     return 0;
 }
@@ -134,10 +141,10 @@ void arena_clear(mem_arena* arena) {
 }
 
 #ifdef _WIN32
-#include <windows.h>
+#include <Windows.h>
 
 u32 plat_get_pagesize(void) {
-    SYSTEM_INFO sysinfo = { 0 };
+    SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     return sysinfo.dwPageSize;
 }
@@ -156,6 +163,6 @@ b32 plat_mem_decommit(void* ptr, u64 size) {
 }
 
 b32 plat_mem_release(void* ptr, u64 size) {
-    return VirtualFree(ptr, 0, MEM_RELEASE);
+    return VirtualFree(ptr, size, MEM_RELEASE);
 }
 #endif
