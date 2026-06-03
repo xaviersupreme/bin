@@ -24,7 +24,8 @@ typedef float f32;
 #define PRINT_HEX(mod) cout << WHITESPACE << mod << hex << uppercase << chr
 
 vector<unsigned char> dump_file_bytes(string input);
-void dump_char_info(vector<unsigned char> vect);
+void dump_char_info(vector<unsigned char>& vect);
+void dump_char_info_to_file(vector<unsigned char>& bytes, ofstream output);
 
 
 int main(void) {
@@ -43,6 +44,17 @@ int main(void) {
 
     dump_char_info(bytes);
 
+    string ans;
+    cout << "\nWould You Like to Save the Output? [y/n]: ";
+    getline(cin, ans);
+
+    if (ans == "y") {
+        dump_char_info_to_file(bytes, (ofstream)"./output.txt");
+        cout << "SAVED TO: output.txt";
+    } else {
+        return 0;
+    }
+
     return 0;
 }
 
@@ -59,7 +71,7 @@ vector<unsigned char> dump_file_bytes(string input) {
 }
 
 
-void dump_char_info(vector<unsigned char> bytes) {
+void dump_char_info(vector<unsigned char>& bytes) {
     /*----------------------------------*/
     string ascii;
 
@@ -99,6 +111,53 @@ void dump_char_info(vector<unsigned char> bytes) {
             u8 missing = 16 - ascii.size();
             cout << string((missing * 3) + 1, WHITESPACE); // padding needed to align the ASCII
             cout << ascii;
+        }
+    }
+
+}
+
+
+void dump_char_info_to_file(vector<unsigned char>& bytes, ofstream output) {
+    /*----------------------------------*/
+    string ascii;
+
+    for (u64 i{}; i < bytes.size(); ++i) {
+        int chr = (int)bytes[i];
+
+        if (chr < 32 || chr > 126) {
+            ascii += '.';
+            
+        } else {
+            ascii += bytes[i];
+        }
+
+
+        if (IS_MOD_16(i)) {
+            output << dec; // "Flush" the output to make it quit returning decs as hexadecs.
+
+            output << "\n"
+                << setw(8)
+                << setfill('0')
+                << i;
+        }
+
+
+        if (chr <= 15) {
+            output << WHITESPACE << "0" << hex << uppercase << chr;
+
+        } else {
+            output << WHITESPACE << hex << uppercase << chr;
+        }
+
+
+        if (IS_MOD_16(ascii.size())) {
+            output << WHITESPACE << ascii;
+            ascii.clear();
+
+        } else if (bytes.size() - i < 2) {
+            u8 missing = 16 - ascii.size();
+            output << string((missing * 3) + 1, WHITESPACE);
+            output << ascii;
         }
     }
 
