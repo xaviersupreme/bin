@@ -20,7 +20,7 @@ typedef int64_t i64;
 typedef float f32;
 
 #define IS_MOD_16(n) ((u64)n % (16) == (0))
-#define WHITESPACE " "
+#define WHITESPACE ' '
 #define PRINT_HEX(mod) cout << WHITESPACE << mod << hex << uppercase << chr
 
 vector<unsigned char> dump_file_bytes(string input);
@@ -75,7 +75,7 @@ void dump_char_info(vector<unsigned char> bytes) {
 
 
         if (IS_MOD_16(i)) {
-            cout << dec; // "Flush" cout to quit returning decs as hexadecs.
+            cout << dec; // "Flush" cout to make it quit returning decs as hexadecs.
             cout << "\n"
                 << setw(8)
                 << setfill('0')
@@ -84,7 +84,7 @@ void dump_char_info(vector<unsigned char> bytes) {
 
 
         if (chr <= 15) {
-            PRINT_HEX('0');
+            PRINT_HEX('0'); // appends '0' to the start
 
         } else {
             PRINT_HEX("");
@@ -95,9 +95,9 @@ void dump_char_info(vector<unsigned char> bytes) {
             cout << WHITESPACE << ascii;
             ascii.clear();
 
-        } else if (bytes.size() - i < 2) {
+        } else if (bytes.size() - i < 2) { /* pseudo: if the last set of bytes are under 16 chrs */
             u8 missing = 16 - ascii.size();
-            cout << string((missing * 3) + 1, ' ');
+            cout << string((missing * 3) + 1, WHITESPACE); // padding needed to align the ASCII
             cout << ascii;
         }
     }
