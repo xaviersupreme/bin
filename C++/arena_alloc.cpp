@@ -1,7 +1,5 @@
-#include <cstddef>
 #include <cstdlib>
-#include <cstdint>
-#include <iostream>
+#include <cstdio>
 #include <stdexcept>
 
 typedef uint64_t u64;
@@ -20,42 +18,47 @@ typedef struct mem_arena {
 #define MiB(n) ((u64)n << (20))
 #define GiB(n) ((u64)n << (30))
 
-mem_arena init_arena(u64 capacity);
+mem_arena* init_arena(u64 capacity);
 void* alloc_arena(mem_arena* arena, u64 size);
 void reset_arena(mem_arena* arena);
 void void_arena(mem_arena* arena);
 
 int main(void) {
-    mem_arena perm_arena = init_arena(KiB(1));
+    mem_arena* perm_arena = init_arena(KiB(1));
 
-    u64* ptr = (u64*)alloc_arena(&perm_arena, sizeof(u64));
+    u64* ptr = (u64*)alloc_arena(perm_arena, sizeof(u64));
     *ptr = 19;
 
     printf("*ptr: %llu, raw ptr = %p\n", *ptr, ptr);
+
+    void_arena(perm_arena);
 }
 
-mem_arena init_arena(u64 capacity) {
+mem_arena* init_arena(u64 capacity) {
     if (capacity == 0) {
         throw std::runtime_error("Attempt to set Arena capacity to or less than 0");
     }
 
-    mem_arena arena;
-    arena.memory_block = (u8*)malloc(capacity);
-    arena.capacity = capacity;
-    arena.offset = 0;
+    mem_arena* arena;
+    arena->memory_block = (u8*)malloc(capacity);
+
+    if (!arena->memory_block || arena->memory_block == nullptr) {
+        throw std::runtime_error("Failed to allocate memory");
+    }
+
+    arena->capacity = capacity;
+    arena->offset = 0;
 
     return arena;
 }
 
 void* alloc_arena(mem_arena* arena, u64 size) {
     if (!arena->memory_block) {
-        std::cerr << "WARN: Arena not initialized\n";
-        return nullptr;
+        throw std::runtime_error("Arena not initialized\n");
     }
 
     if (arena->offset + size > arena->capacity) {
-        std::cerr << "WARN: Arena out of memory\n";
-        return nullptr;
+        throw std::runtime_error("Arena out of memory\n");
     }
 
     u8* result = arena->memory_block + arena->offset;
@@ -66,7 +69,7 @@ void* alloc_arena(mem_arena* arena, u64 size) {
 
 void reset_arena(mem_arena* arena) {
     if (arena->capacity == 0) {
-        std::cerr << "WARN: Attempt to reset zeroed Arena.\n";
+        throw std::runtime_error("Attempt to reset zeroed Arena.\n");
     }
 
     arena->offset = 0;
