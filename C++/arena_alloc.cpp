@@ -27,7 +27,7 @@ void reset_arena(mem_arena* arena);
 void f_reset_arena(mem_arena* arena);
 
 template<typename T>
-void* push_var_arena(mem_arena* arena, T &var, u64 size);
+T* push_var_arena(mem_arena* arena, T &var, u64 size);
 
 int main(void) {
     mem_arena perm_arena = init_arena(KiB(1));
@@ -85,11 +85,11 @@ void f_reset_arena(mem_arena* arena) {
 }
 
 template<typename T>
-void* push_var_arena(mem_arena* arena, T &var, u64 size) {
+T* push_var_arena(mem_arena* arena, T &var, u64 size) {
     if (size == 0) throw std::runtime_error("Attempt to push to arena with 0 bytes");
 
     T* allocated = (T*)alloc_arena(arena, size);
-    *allocated = var;;
+    *allocated = var;
 
     return allocated;
 }
