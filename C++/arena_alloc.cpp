@@ -44,7 +44,7 @@ int main(void) {
 
     char** ptr = (char**)push_var_arena(&perm_arena, f);
 
-    printf("%s, %p\n", *ptr, ptr);
+    printf("%s, %p\n", *ptr, (void*)ptr);
 
     u16 arr[] = {1,2,3,4, 5, 1,3,3};
 
@@ -83,7 +83,7 @@ void* alloc_arena(mem_arena* arena, u64 size) {
 }
 
 void reset_arena(mem_arena* arena) {
-    if (arena->capacity == 0) throw std::runtime_error("[F] Attempt to reset unused Arena.\n");
+    if (arena->offset == 0 || arena->capacity) throw std::runtime_error("[F] Attempt to reset unused Arena.\n");
 
     arena->offset = 0;
 }
@@ -118,7 +118,7 @@ template<typename T>
 T* push_arr_arena(mem_arena* arena, T arr[], u64 elems) {
     arena->offset = align_up(arena->offset, sizeof(T));
     T* allocated = (T*)alloc_arena(arena, sizeof(T) * elems);
-
+    
     if (!(allocated) || allocated == nullptr) throw std::runtime_error("[F] Failed to allocate memory for array in push_arr_arena(...)");
 
     for (u64 i{}; i < elems; ++i) {
